@@ -2,28 +2,29 @@
   "monday": {
     "morning": {
       "name": "Manhã",
-      "endTime": "05:30",
+      "endTime": "06:30",
       "tasks": [
-        { "id": 1, "name": "Acordar", "duration": 5, "color": "#FBBF24", "icon": "☀️" },
-        { "id": 2, "name": "Café da Manhã", "duration": 20, "color": "#F87171", "icon": "🥣" },
-        { "id": 3, "name": "Lavar o rosto", "duration": 5, "color": "#F87171", "icon": "💦" },
-        { "id": 4, "name": "Escovar os Dentes", "duration": 5, "color": "#60A5FA", "icon": "🦷" },
-        { "id": 5, "name": "Trocar de Roupa", "duration": 10, "color": "#34D399", "icon": "👕" },
-        { "id": 7, "name": "Xixi tático", "duration": 10, "color": "#10094D", "icon": "🚽" },
-        { "id": 8, "name": "Sair de Casa", "duration": 5, "color": "#A78BFA", "icon": "👟" }
+        { "id": 1, "name": "Acordar", "icon": "🌞", "color": "#06b6d4", "minutes": 10 },
+        { "id": 2, "name": "Café da manhã", "icon": "☕️", "color": "#f97316", "minutes": 20 },
+        { "id": 3, "name": "Lavar as mãos", "icon": "🧼", "color": "#34d399", "minutes": 5 },
+        { "id": 4, "name": "Escovar os dentes", "icon": "🪥", "color": "#a855f7", "minutes": 5 },
+        { "id": 5, "name": "Trocar de roupa", "icon": "👕", "color": "#22c55e", "minutes": 10 },
+        { "id": 6, "name": "Arrumar mochila", "icon": "🎒", "color": "#0ea5e9", "minutes": 5 },
+        { "id": 7, "name": "Xixi tático", "icon": "🚽", "color": "#f472b6", "minutes": 5 },
+        { "id": 8, "name": "Tênis e sair", "icon": "👟", "color": "#ef4444", "minutes": 5 } 
       ]
     },
     "evening": {
       "name": "Noite",
       "endTime": "21:00",
       "tasks": [
-        { "id": 1, "name": "Jantar", "duration": 20, "color": "#F87171", "icon": "🥣" },
-        { "id": 2, "name": "Brincar", "duration": 30, "color": "#FBBF24", "icon": "🧸" },
-        { "id": 3, "name": "Banho", "duration": 15, "color": "#60A5FA", "icon": "🛁" },
-        { "id": 4, "name": "Pijama", "duration": 5, "color": "#34D399", "icon": "👕" },
-        { "id": 5, "name": "Escovar os Dentes", "duration": 5, "color": "#60A5FA", "icon": "🦷" },
-        { "id": 6, "name": "História", "duration": 15, "color": "#A78BFA", "icon": "📖" },
-        { "id": 7, "name": "Dormir", "duration": 5, "color": "#4B5563", "icon": "😴" }
+          { "id": 1, "name": "Banho", "icon": "🛁", "color": "#38bdf8", "minutes": 15 },
+          { "id": 2, "name": "Jantar", "icon": "🍽️", "color": "#fb923c", "minutes": 20 },
+          { "id": 3, "name": "Fazer cocô", "icon": "💩", "color": "#8B5E3C", "minutes": 7 },
+          { "id": 4, "name": "Lavar as mãos", "icon": "🧼", "color": "#34d399", "minutes": 5 },
+          { "id": 5, "name": "Escovar os dentes", "icon": "🪥", "color": "#a78bfa", "minutes": 5 },
+          { "id": 6, "name": "Xixi tático", "icon": "🚽", "color": "#f472b6", "minutes": 5 },
+          { "id": 7, "name": "Dormir", "icon": "😴", "color": "#60a5fa", "minutes": 5 }
       ]
     }
   }
