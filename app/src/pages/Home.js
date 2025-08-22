@@ -12,7 +12,7 @@ export default function Home({ routines, currentTime }) {
   const [routineId, setRoutineId] = useState('morning');
   const routine = available[routineId] || { name: 'Rotina', tasks: [] };
 
-  const tasks = routine.tasks || [];
+  const tasks = useMemo(() => routine.tasks || [], [routine]);
   const totalMinutes = useMemo(() => sumMinutes(tasks), [tasks]);
 
   // Modes: start | deadline
@@ -34,9 +34,9 @@ export default function Home({ routines, currentTime }) {
   const deadline = toToday(deadlineStr);
   const now = currentTime instanceof Date ? currentTime : new Date();
 
-  const { elapsed, endsAt } = useMemo(() =>
-    computeElapsed({ mode, startTime, deadline, now, totalMinutes }),
-    [mode, startTime, deadlineStr, now, totalMinutes]
+  const { elapsed, endsAt } = useMemo(
+    () => computeElapsed({ mode, startTime, deadline, now, totalMinutes }),
+    [mode, startTime, deadline, now, totalMinutes]
   );
 
   const { index: currentIdx, inTaskElapsed, clampedElapsed } = useMemo(() => locateTask(elapsed, tasks), [elapsed, tasks]);
