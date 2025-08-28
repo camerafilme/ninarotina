@@ -2,7 +2,7 @@ import React from 'react';
 import { clampNum, hhmm } from '../lib/timeline';
 
 export default function AgoraCard({ current, currentPct, endsAt, inTaskRemaining, now }) {
-  const minutes = current.minutes ?? current.duration ?? 0;
+  const minutes = current.minutes ?? 0;
   const widthScale = clampNum(minutes / 5, 1, 4); // 5→1×, 20→4×
   const barBasePx = 220; // px for 5 min
   const barWidthPx = Math.round(barBasePx * widthScale);
@@ -42,4 +42,3 @@ export default function AgoraCard({ current, currentPct, endsAt, inTaskRemaining
     </section>
   );
 }
-

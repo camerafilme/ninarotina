@@ -46,10 +46,11 @@ export default function TimelineNew({
         </div>
 
         {/* Taller blocks; full-bleed width */}
-        <div className="relative w-full overflow-hidden rounded-2xl">
-          <div className="flex w-full">
+        {/* Scrollable on small screens to avoid squished blocks */}
+        <div className="relative w-full rounded-2xl overflow-x-auto">
+          <div className="flex w-full min-w-[700px] sm:min-w-0">
             {tasks.map((t, i) => {
-              const widthPct = ((t.minutes ?? t.duration) / totalMinutes) * 100;
+              const widthPct = ((t.minutes) / totalMinutes) * 100;
               const isCurrent = i === currentIdx;
               return (
                 <button
@@ -57,15 +58,15 @@ export default function TimelineNew({
                   onClick={() => onJump(i)}
                   className="relative flex-none h-40 md:h-48 focus:outline-none focus-visible:ring-4 focus-visible:ring-white/90 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-800 transition active:scale-[0.99]"
                   style={{ width: `${widthPct}%`, backgroundColor: t.color }}
-                  title={`${t.name} — ${t.minutes ?? t.duration} min`}
+                  title={`${t.name} — ${t.minutes} min`}
                   aria-label={`Pular para ${t.name}`}
                 >
                   <div className="absolute inset-0 p-2 md:p-4">
                     <div className="flex h-full w-full flex-col items-center justify-center text-white/95 drop-shadow-sm text-center">
                       <div className="text-2xl md:text-3xl leading-none">{t.icon}</div>
-                      <div className="w-full">
+                      <div className="w-full hidden sm:block">
                         <div className="text-[11px] md:text-sm font-semibold leading-tight whitespace-normal break-words">{t.name}</div>
-                        <div className="text-[10px] md:text-xs opacity-90">{t.minutes ?? t.duration} min</div>
+                        <div className="text-[10px] md:text-xs opacity-90">{t.minutes} min</div>
                       </div>
                     </div>
                   </div>
@@ -91,4 +92,3 @@ export default function TimelineNew({
     </section>
   );
 }
-

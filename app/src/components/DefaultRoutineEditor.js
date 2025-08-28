@@ -1,7 +1,22 @@
 import React, { useState } from 'react';
 
 const DefaultRoutineEditor = ({ routines, onSave, onCancel }) => {
-  const [editableRoutines, setEditableRoutines] = useState(JSON.parse(JSON.stringify(routines)));
+  const [editableRoutines, setEditableRoutines] = useState(() => {
+    const clone = JSON.parse(JSON.stringify(routines));
+    Object.keys(clone || {}).forEach((day) => {
+      Object.keys(clone[day] || {}).forEach((period) => {
+        const r = clone[day][period];
+        if (r && Array.isArray(r.tasks)) {
+          r.tasks = r.tasks.map((t) => {
+            const minutes = t.minutes ?? t.duration ?? 0;
+            const { duration, ...rest } = t;
+            return { ...rest, minutes };
+          });
+        }
+      });
+    });
+    return clone;
+  });
   const [newRoutineDay, setNewRoutineDay] = useState('');
   const [newRoutinePeriod, setNewRoutinePeriod] = useState('');
   const [newRoutineName, setNewRoutineName] = useState('');
@@ -23,7 +38,7 @@ const DefaultRoutineEditor = ({ routines, onSave, onCancel }) => {
     const newTask = { 
       id: newTaskId, 
       name: 'Nova Tarefa', 
-      duration: 10, 
+      minutes: 10, 
       color: '#CCCCCC', 
       icon: '✨' 
     };
@@ -70,6 +85,64 @@ const DefaultRoutineEditor = ({ routines, onSave, onCancel }) => {
     }));
   };
 
+  // Reorder task up/down
+  const handleMoveTask = (day, period, taskId, direction) => {
+    setEditableRoutines(prev => {
+      const curr = prev[day][period];
+      const arr = curr.tasks.slice();
+      const idx = arr.findIndex(t => t.id === taskId);
+      if (idx === -1) return prev;
+      const delta = direction === 'up' ? -1 : 1;
+      const newIdx = idx + delta;
+      if (newIdx < 0 || newIdx >= arr.length) return prev;
+      const [item] = arr.splice(idx, 1);
+      arr.splice(newIdx, 0, item);
+      return {
+        ...prev,
+        [day]: {
+          ...prev[day],
+          [period]: {
+            ...curr,
+            tasks: arr
+          }
+        }
+      };
+    });
+  };
+
+  // Drag & drop within a routine list
+  const isDesktop = typeof window !== 'undefined' && ((window.matchMedia && window.matchMedia('(pointer: fine)').matches) || (window.innerWidth >= 768));
+  const handleDragStart = (e, day, period, taskId) => {
+    // Only use taskId; we'll verify it exists in the target list
+    e.dataTransfer.setData('text/plain', String(taskId));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+  const handleDrop = (e, day, period, targetTaskId) => {
+    e.preventDefault();
+    const sourceId = Number(e.dataTransfer.getData('text/plain'));
+    if (!sourceId || sourceId === targetTaskId) return;
+    setEditableRoutines(prev => {
+      const curr = prev[day][period];
+      const arr = curr.tasks.slice();
+      const from = arr.findIndex(t => t.id === sourceId);
+      const to = arr.findIndex(t => t.id === targetTaskId);
+      if (from < 0 || to < 0) return prev; // ignore cross-list drops
+      const [item] = arr.splice(from, 1);
+      arr.splice(to, 0, item);
+      return {
+        ...prev,
+        [day]: {
+          ...prev[day],
+          [period]: { ...curr, tasks: arr }
+        }
+      };
+    });
+  };
+
   // Update routine properties (name, endTime)
   const handleRoutineChange = (day, period, field, value) => {
     setEditableRoutines(prev => ({
@@ -95,7 +168,7 @@ const DefaultRoutineEditor = ({ routines, onSave, onCancel }) => {
       name: newRoutineName,
       endTime: '12:00',
       tasks: [
-        { id: 1, name: 'Primeira Tarefa', duration: 15, color: '#FBBF24', icon: '⭐' }
+        { id: 1, name: 'Primeira Tarefa', minutes: 15, color: '#FBBF24', icon: '⭐' }
       ]
     };
 
@@ -125,7 +198,24 @@ const DefaultRoutineEditor = ({ routines, onSave, onCancel }) => {
   };
 
   const handleSave = () => {
-    onSave(editableRoutines);
+    const clean = JSON.parse(JSON.stringify(editableRoutines));
+    Object.keys(clean || {}).forEach((day) => {
+      Object.keys(clean[day] || {}).forEach((period) => {
+        const r = clean[day][period];
+        if (r && Array.isArray(r.tasks)) {
+          r.tasks = r.tasks.map((t) => {
+            return {
+              id: t.id,
+              name: t.name,
+              icon: t.icon,
+              color: t.color,
+              minutes: Number(t.minutes) || 0,
+            };
+          });
+        }
+      });
+    });
+    onSave(clean);
   };
 
   const daysOfWeek = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -186,7 +276,38 @@ const DefaultRoutineEditor = ({ routines, onSave, onCancel }) => {
                     {/* Tasks */}
                     <div className="space-y-2">
                       {routine.tasks.map(task => (
-                        <div key={task.id} className="flex items-center space-x-2 bg-white p-2 rounded">
+                        <div
+                          key={task.id}
+                          className="flex items-center space-x-2 bg-white p-2 rounded"
+                          draggable={isDesktop}
+                          onDragStart={(e) => handleDragStart(e, day, period, task.id)}
+                          onDragOver={handleDragOver}
+                          onDrop={(e) => handleDrop(e, day, period, task.id)}
+                        >
+                          <div
+                            className="hidden md:flex items-center justify-center w-6 h-10 text-slate-500 cursor-move select-none"
+                            title="Arraste para reordenar"
+                          >
+                            ⋮⋮
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleMoveTask(day, period, task.id, 'up')}
+                              className="px-1 py-0.5 text-xs rounded bg-slate-200 hover:bg-slate-300"
+                              aria-label="Mover tarefa para cima"
+                            >
+                              ▲
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleMoveTask(day, period, task.id, 'down')}
+                              className="px-1 py-0.5 text-xs rounded bg-slate-200 hover:bg-slate-300"
+                              aria-label="Mover tarefa para baixo"
+                            >
+                              ▼
+                            </button>
+                          </div>
                           <input
                             type="text"
                             value={task.name}
@@ -196,8 +317,8 @@ const DefaultRoutineEditor = ({ routines, onSave, onCancel }) => {
                           />
                           <input
                             type="number"
-                            value={task.duration}
-                            onChange={(e) => handleTaskChange(day, period, task.id, 'duration', parseInt(e.target.value, 10))}
+                            value={task.minutes}
+                            onChange={(e) => handleTaskChange(day, period, task.id, 'minutes', parseInt(e.target.value, 10))}
                             className="border p-1 rounded w-16"
                             min="1"
                           />

@@ -12,7 +12,7 @@ const Timeline = ({ routine, endTime, currentTime }) => {
     const brightness = (r * 299 + g * 587 + b * 114) / 1000;
     return brightness > 128 ? '#000000' : '#FFFFFF';
   };
-  const totalDuration = routine.tasks.reduce((sum, task) => sum + task.duration, 0);
+  const totalDuration = routine.tasks.reduce((sum, task) => sum + (task.minutes ?? 0), 0);
 
   const routineEndTime = new Date();
   const [endHour, endMinute] = endTime.split(':').map(Number);
@@ -41,12 +41,12 @@ const Timeline = ({ routine, endTime, currentTime }) => {
       <div className="relative w-full h-32 sm:h-40 md:h-48 lg:h-56 bg-gray-200 rounded-lg shadow-lg" style={{ marginTop: '-10vh' }}>
         {routine.tasks.map((task, index) => {
           const startPercentage = (cumulativeTime / totalDuration) * 100;
-          const taskWidth = (task.duration / totalDuration) * 100;
+          const taskWidth = ((task.minutes ?? 0) / totalDuration) * 100;
           // Use task's actual color if available, fallback to color combinations
           const taskBgColor = task.color || colorCombinations[index % colorCombinations.length].bg;
           const taskTextColor = getContrastColor(taskBgColor);
           
-          cumulativeTime += task.duration;
+          cumulativeTime += (task.minutes ?? 0);
           
           return (
             <div
@@ -68,7 +68,7 @@ const Timeline = ({ routine, endTime, currentTime }) => {
                   {task.name}
                 </div>
                 <div className="text-xs sm:text-sm font-light opacity-80 mt-1">
-                  {task.duration} minuto{task.duration !== 1 ? 's' : ''}
+                  {task.minutes} minuto{task.minutes !== 1 ? 's' : ''}
                 </div>
               </div>
             </div>
