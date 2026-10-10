@@ -48,8 +48,14 @@ export function parseRoutineUrl(search, pathname = '/') {
       if (minutes > 180 || total > 720) throw new Error();
       let definition;
       if (identity.startsWith('~')) {
-        if (!legacy && !/^~(?:[A-Za-z0-9_!~*'()]|%[0-9a-fA-F]{2})+$/.test(identity)) throw new Error();
-        const name = decodeURIComponent(identity.slice(1));
+        // Accept both double percent-encoded names and names pre-decoded by apps like Telegram
+        const raw = identity.slice(1);
+        let name;
+        try {
+          name = decodeURIComponent(raw);
+        } catch (_) {
+          name = raw;
+        }
         if (!name.trim() || name.length > 80 || Array.from(name).some(char => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127)) throw new Error();
         definition = { name, icon: '✨', color: '#CCCCCC' };
       } else {
